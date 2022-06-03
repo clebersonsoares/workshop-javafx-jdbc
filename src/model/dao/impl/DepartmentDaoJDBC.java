@@ -10,6 +10,7 @@ import java.util.List;
 
 import db.DB;
 import db.DbException;
+import db.DbIntegrityException;
 import model.dao.DepartmentDao;
 import model.entities.Department;
 
@@ -92,22 +93,12 @@ public class DepartmentDaoJDBC implements DepartmentDao{
 	public void deleteById(Integer id) {
 		PreparedStatement ps = null;
 		try {
-			con.setAutoCommit(false);
+		
 			ps = con.prepareStatement("DELETE FROM department WHERE Id = ?");
 			ps.setInt(1, id);
 			int rowsAffected = ps.executeUpdate();
-			if(rowsAffected > 0) {
-				con.commit();
-				System.out.println("Departamento deletado com sucesso");
-			}else {
-				con.rollback();
-				System.out.println("Infelizmente não foi possível deletar o Departamento :(");
-			}
-			
-			
 		}catch(SQLException e) {
-			
-			System.out.println(e.getMessage());
+			throw new DbIntegrityException(e.getMessage());
 		}finally {
 			DB.closeStatement(ps);
 		}
